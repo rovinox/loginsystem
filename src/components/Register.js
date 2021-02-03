@@ -37,17 +37,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Register = (props) => {
+const Register = () => {
   const classes = useStyles();
-  const [user, setUser] = useState();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
 
   const handleInputChange = (e) => {
-    setUser({ [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async () => {
-    const data = await axios.post("http://localhost:5050/register");
-    console.log(data);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      const data = await axios.post("http://localhost:5050/signUp", form);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (

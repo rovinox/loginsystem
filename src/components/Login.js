@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import GoogleLogin from "react-google-login";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -45,34 +45,40 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = (props) => {
   const classes = useStyles();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const history = useHistory();
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleEmail = (e) => {
-    setEmail(e.target.value);
-    console.log("e.target.value: ", e.target.value);
+  const handleForm = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handlePassword = (e) => {
-    setPassword(e.target.value);
-    console.log("e.target.value: ", e.target.value);
-  };
   const handleLogin = async (e) => {
     e.preventDefault();
-    const data = await axios.post("http://localhost:5050/login", {
-      email,
-      password,
-    });
-    console.log(data);
-    // localStorage.setItem(data.token)
-    console.log({ email, password });
-    console.log("handlelogin");
+    try {
+      const data = await axios.post("http://localhost:5050/login", form);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const googleSuccess = () => {
-    console.log("Login worked");
+  const googleSuccess = async (res) => {
+    try {
+      const result = await res?.profileObj;
+      const token = await res?.tokenId;
+      console.log("token: ", token);
+
+      localStorage.setItem("profile", res);
+      if (token) {
+        history.push("/home");
+      }
+    } catch (err) {}
   };
-  const googleFailure = () => {
+  const googleFailure = (err) => {
+    console.log("err: ", err);
     console.log("login failed");
   };
   const GoogleIcon = () => {
@@ -110,7 +116,7 @@ const Login = (props) => {
               name="email"
               autoComplete="off"
               autoFocus
-              onChange={handleEmail}
+              onChange={handleForm}
             />
             <TextField
               variant="outlined"
@@ -123,8 +129,18 @@ const Login = (props) => {
               className="password"
               id="password"
               autoComplete="off"
-              onChange={handlePassword}
+              onChange={handleForm}
             />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={handleLogin}
+            >
+              Sign In
+            </Button>
             <GoogleLogin
               clientId="443615690666-umsn4tl5j3mfqonfjqgp2bk0f0nrq756.apps.googleusercontent.com"
               render={(renderProps) => {
@@ -147,16 +163,6 @@ const Login = (props) => {
               cookiePolicy="single_host_origin"
             />
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-              onClick={handleLogin}
-            >
-              Sign In
-            </Button>
             <Grid container>
               <Grid item>
                 {"Don't have an account? "}

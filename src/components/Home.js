@@ -23,21 +23,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 export default function Home() {
   const classes = useStyles();
-  const [isLogIn, setIsLogin] = useState(false);
+  const [user, setUser] = useState(localStorage.getItem("profile"));
   useEffect(() => {
     async function fetchMyAPI() {
-      let response = await axios.post("http://localhost:5050/register");
-      console.log("response: ", response);
-      setIsLogin(response.data.isLogin);
+      // let response = await axios.post("http://localhost:5050/register");
     }
     fetchMyAPI();
-  }, [isLogIn]);
-  // if (!isLogIn) {
-  //   return <Redirect to="/" />;
-  // }
+  }, [user]);
+  if (!user) {
+    return <Redirect to="/" />;
+  }
 
   const handleLogout = () => {
-    setIsLogin(true);
+    setUser(null);
+    localStorage.clear();
   };
 
   return (
