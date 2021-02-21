@@ -8,7 +8,7 @@ import Home from "./components/Home";
 export default function routes() {
   return (
     <Switch>
-      <Route exact path="/" component={Login} />
+      <Route exact path="/" component={Home} />
       <Route exact path="/register" component={Register} />
       <Route exact path="/home" component={Home} />
     </Switch>
